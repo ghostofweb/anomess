@@ -58,6 +58,8 @@ const User:Schema<User> = new Schema({
     messages:[MessageSchema]
 })
 
-const UserModel = (mongoose.models.User as mongoose.Model<User>) || mongoose.model('user', User);
+const UserModel = (mongoose.models.User as mongoose.Model<User>) || mongoose.model<User>('user', User);
 //mongoose.models.User to check if the user model is already made or nah
 // as mongoose.Model<User> to check the model Interface and template of User
+
+export default UserModel;
