@@ -7,4 +7,7 @@ export const usernameValidation = z
     .regex(/^[a-zA-Z0-9_]+$/,"Username Must Not Contain Special Character")
 
 
-    export const signUpSchema = z.object({usernameValidation})
+export const signUpSchema = z.object({
+    username:usernameValidation,
+    
+})
