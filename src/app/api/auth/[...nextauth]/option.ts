@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import { dbConnect } from "@/lib/dbConnect";
 import UserModel from "@/model/User";
 
-export const authOptions = NextAuth({
+export const authHandler  = NextAuth({
     providers: [
         CredentialsProvider({
             id: "credentials",
@@ -33,7 +33,14 @@ export const authOptions = NextAuth({
                     const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
 
                     if (isPasswordCorrect) {
-                        return user;
+                        return {
+                            _id: user._id,
+                            email: user.email,
+                            name: user.username,
+                            isVerified: user.isVerified,
+                            isAcceptingMessage: user.isAcceptingMessage,
+                            username: user.username,
+                        };
                     } else {
                         throw new Error("Incorrect password.");
                     }
@@ -51,23 +58,24 @@ export const authOptions = NextAuth({
     },
     callbacks: {
         async session({ session, token }) {
-            if (token) {
-                session.user._id = token._id
-
+            if (session.user) {
+                session.user._id = token._id as string  // Ensure TypeScript recognizes this
+                session.user.isVerified = token.isVerified as boolean;
+                session.user.isAcceptingMessage = token.isAcceptingMessage as boolean;
+                session.user.username = token.username as string;
             }
-            return session
+            return session;
         },
-        async jwt({ token, user}) {
+        async jwt({ token, user }) {
             if (user) {
-                token._id = user._id?.toString()
-                token.isVarified = user.isVerified;
+                token._id = user._id;
+                token.isVerified = user.isVerified; // Fixed typo (was "isVarified")
                 token.isAcceptingMessage = user.isAcceptingMessage;
                 token.username = user.username;
             }
-            return token
+            return token;
         }
     },
     secret: process.env.NEXTAUTH_SECRET,
 });
 
-export default authOptions;
